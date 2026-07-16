@@ -1,0 +1,104 @@
+# Mira — Plan de trabajo
+
+## Objetivo
+
+Mira es una aplicación Flutter que usa la cámara para reconocer controles físicos —botones, perillas, pantallas e íconos— y explicar su función en lenguaje sencillo.
+
+Caso principal del MVP: fotografiar una lavadora, seleccionar un control y entender qué hace en menos de un minuto.
+
+## Estado actual
+
+- Proyecto Flutter creado en `/home/daniel/Documentos/GitHub/mira`.
+- Plataformas iniciales: Android y Web.
+- Organización Android: `com.daniel`.
+- Dependencia instalada: `camera`.
+- `lib/main.dart` todavía contiene la pantalla contador generada por Flutter.
+- No existe backend, OCR, modelo visual, autenticación ni realidad aumentada.
+
+## Alcance del MVP
+
+1. Abrir la cámara.
+2. Mostrar una previsualización estable.
+3. Capturar una fotografía.
+4. Mostrar la fotografía capturada.
+5. Permitir seleccionar una zona de la imagen.
+6. Mostrar una explicación temporal para esa zona.
+7. Leer la explicación con voz si la plataforma lo permite.
+
+La primera explicación puede ser local y basada en datos de demostración. La detección automática se agrega después de que el flujo de cámara funcione.
+
+## Fases
+
+### Fase 1 — Cámara funcional
+
+- Reemplazar la pantalla contador.
+- Crear pantalla inicial de Mira.
+- Manejar permisos de cámara.
+- Mostrar estados de carga y error.
+- Capturar y revisar una imagen.
+
+**Aceptación:** una persona puede abrir Mira, tomar una foto y verla dentro de la app en Android.
+
+### Fase 2 — Controles seleccionables
+
+- Dibujar zonas de demostración sobre la imagen.
+- Permitir tocar una zona.
+- Mostrar nombre, función y ejemplo de uso.
+- Mantener el modelo de datos local y pequeño.
+
+**Aceptación:** tocar un control muestra una explicación reproducible sin red.
+
+### Fase 3 — Reconocimiento visual
+
+- Detectar controles mediante imagen/OCR.
+- Reconocer texto e íconos comunes.
+- Mostrar nivel de confianza.
+- Permitir corregir una detección.
+
+**Aceptación:** la app no presenta una detección incierta como hecho; permite confirmarla o corregirla.
+
+### Fase 4 — Accesibilidad
+
+- Lectura por voz.
+- Texto grande y alto contraste.
+- Navegación clara para personas con baja visión.
+- Soporte inicial español/inglés.
+
+### Fase 5 — Portafolio
+
+- README con arquitectura y decisiones.
+- Video corto de uso.
+- Dataset de demostración sin datos privados.
+- Pruebas de los estados principales.
+- Demo desplegada o APK instalable.
+
+## Fuera de alcance inicial
+
+- Backend.
+- Login y cuentas.
+- Pagos.
+- Realidad aumentada en tiempo real.
+- Reconocimiento de cualquier aparato desde el primer día.
+- Instrucciones para equipos médicos, industriales o situaciones peligrosas.
+
+## Decisiones técnicas
+
+- Flutter como aplicación principal.
+- Dependencias mínimas.
+- Primero cámara y flujo local; después reconocimiento.
+- No guardar fotografías fuera del dispositivo durante el MVP.
+- No afirmar instrucciones cuando la detección sea incierta.
+
+## Verificación mínima
+
+Desde la raíz del proyecto:
+
+```bash
+rtk dart format .
+rtk flutter analyze
+rtk flutter test
+```
+
+## Siguiente tarea
+
+Reemplazar el contador de `lib/main.dart` por una pantalla inicial con botón para abrir la cámara y manejo explícito de permisos y errores.

@@ -11,9 +11,18 @@ Caso principal del MVP: fotografiar una lavadora, seleccionar un control y enten
 - Proyecto Flutter creado en `/home/daniel/Documentos/GitHub/mira`.
 - Plataformas iniciales: Android y Web.
 - Organización Android: `com.daniel`.
-- Dependencia instalada: `camera`.
-- `lib/main.dart` todavía contiene la pantalla contador generada por Flutter.
-- No existe backend, OCR, modelo visual, autenticación ni realidad aumentada.
+- Dependencias instaladas: `camera`, `shared_preferences` y `google_mlkit_text_recognition`.
+- `lib/main.dart` contiene la pantalla inicial de Mira con el estilo visual base.
+- `lib/main.dart` contiene un onboarding local de tres pasos antes de la pantalla principal.
+- El onboarding persiste su estado localmente para mostrarse solo en el primer uso.
+- La Fase 1 está implementada: cámara, permisos, estados de carga/error, captura y revisión local.
+- La aceptación en Android queda pendiente porque no hay un dispositivo físico conectado.
+- La Fase 2 ya tiene dos zonas locales seleccionables con nombre, función y ejemplo de uso.
+- La selección incluye una corrección manual local mediante "Cambiar zona".
+- La pantalla de cámara contempla pausa y reanudación del ciclo de vida de la app.
+- El OCR local ya lee etiquetas en Android después de la captura.
+- En Web, sin texto o ante un error, la selección manual sigue disponible.
+- No existe backend, modelo visual, autenticación ni realidad aumentada.
 
 ## Alcance del MVP
 
@@ -50,7 +59,8 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 
 ### Fase 3 — Reconocimiento visual
 
-- Detectar controles mediante imagen/OCR.
+- Leer etiquetas con OCR local en Android.
+- Detectar controles mediante imagen en una fase posterior.
 - Reconocer texto e íconos comunes.
 - Mostrar nivel de confianza.
 - Permitir corregir una detección.
@@ -85,8 +95,10 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 
 - Flutter como aplicación principal.
 - Dependencias mínimas.
+- Material 3 con una paleta accesible y superficies tonales; evitar gradientes y decoración que distraiga.
 - Primero cámara y flujo local; después reconocimiento.
 - No guardar fotografías fuera del dispositivo durante el MVP.
+- Las preferencias locales solo guardan el estado de onboarding.
 - No afirmar instrucciones cuando la detección sea incierta.
 
 ## Verificación mínima
@@ -101,4 +113,4 @@ rtk flutter test
 
 ## Siguiente tarea
 
-Reemplazar el contador de `lib/main.dart` por una pantalla inicial con botón para abrir la cámara y manejo explícito de permisos y errores.
+Probar el flujo completo en Android físico, especialmente el OCR y su respaldo manual.

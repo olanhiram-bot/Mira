@@ -12,9 +12,21 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 - Flutter Android/Web creado correctamente.
 - Paquete: `mira`.
 - Organización Android: `com.daniel`.
-- `camera` está declarado en `pubspec.yaml`.
-- La interfaz actual sigue siendo la plantilla contador de Flutter.
-- No hay reconocimiento visual implementado.
+- `camera`, `shared_preferences` y `google_mlkit_text_recognition` están declarados en `pubspec.yaml`.
+- La pantalla inicial ya tiene un estilo visual propio y accesible.
+- El estilo base es "Quiet Tech accesible": fondo marfil, tinta azul verdosa,
+  acento coral, superficies amplias y controles grandes.
+- El onboarding presenta tres pasos y permite saltarlo o llegar a la pantalla principal.
+- El onboarding se guarda como completado en preferencias locales y no se repite en cada apertura.
+- La pantalla de cámara implementa apertura de la cámara disponible, estados de
+  carga, permiso, error, captura y revisión local de la fotografía.
+- La cámara libera recursos al salir de la app y se reintenta al volver a primer plano.
+- La revisión de la fotografía ahora incluye dos zonas de demostración
+  seleccionables con explicación local; no simula detección automática.
+- La explicación permite cambiar manualmente la zona desde una hoja de selección.
+- El OCR local lee etiquetas en Android después de capturar una imagen y muestra
+  los textos como ayuda orientativa, sin convertirlos automáticamente en instrucciones.
+- En Web y cuando el OCR falla se conserva la selección manual como respaldo.
 - No hay backend.
 
 ## Decisiones vigentes
@@ -44,7 +56,7 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 
 ## Próximo paso
 
-Implementar la pantalla inicial de cámara en `lib/main.dart`, incluyendo permiso, carga, error y captura básica.
+Probar en Android físico captura, OCR, selección y cambio manual de zona.
 
 ## Riesgos conocidos
 
@@ -52,3 +64,4 @@ Implementar la pantalla inicial de cámara en `lib/main.dart`, incluyendo permis
 - Los permisos deben probarse en dispositivo real.
 - El reconocimiento visual puede producir respuestas incorrectas.
 - Las instrucciones de aparatos peligrosos no deben presentarse como confiables sin validación.
+- La captura todavía debe probarse en un Android físico para confirmar el permiso nativo.

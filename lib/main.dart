@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _ink = Color(0xFF132D32);
@@ -779,6 +780,7 @@ class _CapturedImageView extends StatefulWidget {
 class _CapturedImageViewState extends State<_CapturedImageView> {
   late final Future<Uint8List> _imageBytes;
   late final Future<_OcrResult> _ocrResult;
+
   _DemoControl? _selectedControl;
 
   @override
@@ -837,6 +839,7 @@ class _CapturedImageViewState extends State<_CapturedImageView> {
           ),
         ),
         _OcrResultPanel(future: _ocrResult),
+
         if (_selectedControl case final control?) ...[
           const SizedBox(height: 14),
           _DemoExplanation(control: control, onChange: _showControlPicker),
@@ -850,7 +853,7 @@ class _CapturedImageViewState extends State<_CapturedImageView> {
         ],
         const SizedBox(height: 14),
         Text(
-          'Las zonas son demostrativas; todavía no hay detección automática.',
+          'La detección automática todavía no está disponible; confirma una zona manualmente.',
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),

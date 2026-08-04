@@ -11,7 +11,8 @@ Caso principal del MVP: fotografiar una lavadora, seleccionar un control y enten
 - Proyecto Flutter creado en `/home/daniel/Documentos/GitHub/mira`.
 - Plataformas iniciales: Android y Web.
 - Organización Android: `com.daniel`.
-- Dependencias instaladas: `camera`, `shared_preferences` y `google_mlkit_text_recognition`.
+- Dependencias instaladas: `camera`, `shared_preferences` y
+  `google_mlkit_text_recognition`.
 - `lib/main.dart` contiene la pantalla inicial de Mira con el estilo visual base.
 - `lib/main.dart` contiene un onboarding local de tres pasos antes de la pantalla principal.
 - El onboarding persiste su estado localmente para mostrarse solo en el primer uso.
@@ -22,7 +23,9 @@ Caso principal del MVP: fotografiar una lavadora, seleccionar un control y enten
 - La pantalla de cámara contempla pausa y reanudación del ciclo de vida de la app.
 - El OCR local ya lee etiquetas en Android después de la captura.
 - En Web, sin texto o ante un error, la selección manual sigue disponible.
-- No existe backend, modelo visual, autenticación ni realidad aumentada.
+- No existe backend, modelo visual generativo, clasificación visual abierta,
+  detector de controles, autenticación ni realidad aumentada. La solución
+  prevista es autónoma y debe usar un modelo local empaquetado.
 
 ## Alcance del MVP
 
@@ -60,12 +63,15 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 ### Fase 3 — Reconocimiento visual
 
 - Leer etiquetas con OCR local en Android.
+- Seleccionar o entrenar un modelo local compacto que identifique electrodomésticos.
+- Integrar inferencia TFLite/Android sin depender de red.
 - Detectar controles mediante imagen en una fase posterior.
 - Reconocer texto e íconos comunes.
 - Mostrar nivel de confianza.
 - Permitir corregir una detección.
 
-**Aceptación:** la app no presenta una detección incierta como hecho; permite confirmarla o corregirla.
+**Estado actual:** OCR y selección manual disponibles; la identificación visual
+abierta queda bloqueada hasta validar un modelo adecuado.
 
 ### Fase 4 — Accesibilidad
 

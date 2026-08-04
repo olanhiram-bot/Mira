@@ -12,7 +12,8 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 - Flutter Android/Web creado correctamente.
 - Paquete: `mira`.
 - Organización Android: `com.daniel`.
-- `camera`, `shared_preferences` y `google_mlkit_text_recognition` están declarados en `pubspec.yaml`.
+- `camera`, `shared_preferences` y `google_mlkit_text_recognition` están
+  declarados en `pubspec.yaml`.
 - La pantalla inicial ya tiene un estilo visual propio y accesible.
 - El estilo base es "Quiet Tech accesible": fondo marfil, tinta azul verdosa,
   acento coral, superficies amplias y controles grandes.
@@ -27,7 +28,9 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 - El OCR local lee etiquetas en Android después de capturar una imagen y muestra
   los textos como ayuda orientativa, sin convertirlos automáticamente en instrucciones.
 - En Web y cuando el OCR falla se conserva la selección manual como respaldo.
-- No hay backend.
+- No hay backend ni reconocimiento visual generativo; la identificación abierta
+  todavía no está implementada. La decisión vigente es mantener el reconocimiento
+  autónomo en el dispositivo mediante un modelo local empaquetado.
 
 ## Decisiones vigentes
 
@@ -56,7 +59,8 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 
 ## Próximo paso
 
-Probar en Android físico captura, OCR, selección y cambio manual de zona.
+Seleccionar/entrenar un modelo local compacto para electrodomésticos y validar su
+rendimiento en el Moto G06 antes de integrarlo en la app.
 
 ## Riesgos conocidos
 

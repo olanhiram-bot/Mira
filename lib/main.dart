@@ -5,6 +5,10 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'recognition/image_recognition.dart';
+import 'recognition/ml_kit_image_recognition_service.dart';
+import 'recognition/recognition_panel.dart';
+
 const _ink = Color(0xFF132D32);
 const _teal = Color(0xFF176B68);
 const _mint = Color(0xFFD8F0E7);
@@ -653,7 +657,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
 
     final image = _capturedImage;
     if (image != null) {
-      return _CapturedImageView(
+      return CapturedImageView(
         image: image,
         onRetake: () => setState(() => _capturedImage = null),
       );
@@ -767,27 +771,33 @@ class _CameraStateMessage extends StatelessWidget {
   }
 }
 
-class _CapturedImageView extends StatefulWidget {
-  const _CapturedImageView({required this.image, required this.onRetake});
+class CapturedImageView extends StatefulWidget {
+  const CapturedImageView({
+    required this.image,
+    required this.onRetake,
+    super.key,
+  });
 
   final XFile image;
   final VoidCallback onRetake;
 
   @override
-  State<_CapturedImageView> createState() => _CapturedImageViewState();
+  State<CapturedImageView> createState() => _CapturedImageViewState();
 }
 
-class _CapturedImageViewState extends State<_CapturedImageView> {
+class _CapturedImageViewState extends State<CapturedImageView> {
   late final Future<Uint8List> _imageBytes;
   late final Future<_OcrResult> _ocrResult;
-
-  _DemoControl? _selectedControl;
+  late final Future<ImageRecognitionResult> _recognitionResult;
 
   @override
   void initState() {
     super.initState();
     _imageBytes = widget.image.readAsBytes();
     _ocrResult = _recognizeText();
+    _recognitionResult = createMlKitImageRecognitionService().recognize(
+      imagePath: widget.image.path,
+    );
   }
 
   Future<_OcrResult> _recognizeText() async {
@@ -818,126 +828,51 @@ class _CapturedImageViewState extends State<_CapturedImageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: FutureBuilder<Uint8List>(
-            future: _imageBytes,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError || snapshot.data == null) {
-                return const _CameraStateMessage(
-                  icon: Icons.broken_image_outlined,
-                  title: 'No pudimos mostrar la foto',
-                  message: 'Puedes tomar otra fotografía.',
-                );
-              }
-              return _buildSelectablePhoto(context, snapshot.data!);
-            },
-          ),
-        ),
-        _OcrResultPanel(future: _ocrResult),
-
-        if (_selectedControl case final control?) ...[
-          const SizedBox(height: 14),
-          _DemoExplanation(control: control, onChange: _showControlPicker),
-        ] else ...[
-          const SizedBox(height: 14),
-          Text(
-            'Toca una zona para ver un ejemplo.',
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-        ],
-        const SizedBox(height: 14),
-        Text(
-          'La detección automática todavía no está disponible; confirma una zona manualmente.',
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: widget.onRetake,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tomar otra foto'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSelectablePhoto(BuildContext context, Uint8List bytes) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: Stack(
-            fit: StackFit.expand,
+        final photoHeight = (constraints.maxHeight * 0.48)
+            .clamp(220.0, 420.0)
+            .toDouble();
+        return SingleChildScrollView(
+          key: const ValueKey('captured-review-scroll'),
+          child: Column(
             children: [
-              ColoredBox(
-                color: _ink,
-                child: Image.memory(bytes, fit: BoxFit.cover),
-              ),
-              Positioned(
-                top: 16,
-                left: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 11,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _ink.withValues(alpha: 0.86),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Text(
-                    'EJEMPLO LOCAL',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1,
-                    ),
-                  ),
+              SizedBox(
+                height: photoHeight,
+                child: FutureBuilder<Uint8List>(
+                  future: _imageBytes,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError || snapshot.data == null) {
+                      return const _CameraStateMessage(
+                        icon: Icons.broken_image_outlined,
+                        title: 'No pudimos mostrar la foto',
+                        message: 'Puedes tomar otra fotografía.',
+                      );
+                    }
+                    return _buildPhoto(snapshot.data!);
+                  },
                 ),
               ),
-              ..._demoControls.map(
-                (control) => Positioned(
-                  left: constraints.maxWidth * control.area.left,
-                  top: constraints.maxHeight * control.area.top,
-                  width: constraints.maxWidth * control.area.width,
-                  height: constraints.maxHeight * control.area.height,
-                  child: Semantics(
-                    button: true,
-                    label: 'Zona de ejemplo: ${control.name}',
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedControl = control),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: _teal.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: _selectedControl == control
-                                ? _coral
-                                : Colors.white,
-                            width: _selectedControl == control ? 3 : 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.touch_app_rounded,
-                            color: Colors.white,
-                            size: 26,
-                            shadows: const [Shadow(color: _ink, blurRadius: 8)],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+              _OcrResultPanel(future: _ocrResult),
+              RecognitionResultPanel(
+                future: _recognitionResult,
+                onConfirmed: (_) {},
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'La identificación se realiza en este dispositivo. Confirma el resultado porque la IA puede equivocarse.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: widget.onRetake,
+                  child: const Text('Tomar otra foto'),
                 ),
               ),
             ],
@@ -947,44 +882,39 @@ class _CapturedImageViewState extends State<_CapturedImageView> {
     );
   }
 
-  Future<void> _showControlPicker() async {
-    final selectedControl = await showModalBottomSheet<_DemoControl>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            children: [
-              Text(
-                'Elige otra zona',
-                style: Theme.of(context).textTheme.headlineSmall,
+  Widget _buildPhoto(Uint8List bytes) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ColoredBox(
+            color: _ink,
+            child: Image.memory(bytes, fit: BoxFit.cover),
+          ),
+          Positioned(
+            top: 16,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+              decoration: BoxDecoration(
+                color: _ink.withValues(alpha: 0.86),
+                borderRadius: BorderRadius.circular(14),
               ),
-              const SizedBox(height: 6),
-              Text(
-                'Estas opciones son ejemplos locales para probar el flujo.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 12),
-              ..._demoControls.map(
-                (control) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.touch_app_rounded, color: _teal),
-                  title: Text(control.name),
-                  subtitle: Text(control.function),
-                  onTap: () => Navigator.of(context).pop(control),
+              child: const Text(
+                'ANÁLISIS CON IA LOCAL',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1,
                 ),
               ),
-            ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
-
-    if (mounted && selectedControl != null) {
-      setState(() => _selectedControl = selectedControl);
-    }
   }
 }
 
@@ -1026,7 +956,12 @@ class _OcrResultPanel extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 SizedBox(width: 10),
-                Text('Leyendo etiquetas...'),
+                Expanded(
+                  child: Text(
+                    'Leyendo etiquetas...',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ],
             ),
           );
@@ -1042,15 +977,13 @@ class _OcrResultPanel extends StatelessWidget {
         if (result.failed) {
           return const _OcrMessage(
             icon: Icons.help_outline_rounded,
-            message:
-                'No pudimos leer las etiquetas. Selecciona una zona manualmente.',
+            message: 'No pudimos leer las etiquetas. Puedes tomar otra foto.',
           );
         }
         if (result.texts.isEmpty) {
           return const _OcrMessage(
             icon: Icons.search_off_rounded,
-            message:
-                'No encontramos texto claro. Confirma una zona manualmente.',
+            message: 'No encontramos texto claro en la fotografía.',
           );
         }
 
@@ -1071,7 +1004,7 @@ class _OcrResultPanel extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Es una ayuda orientativa. Confirma la zona antes de usarla.',
+                'Es una ayuda orientativa para confirmar la identificación.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8),
@@ -1107,88 +1040,6 @@ class _OcrMessage extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DemoControl {
-  const _DemoControl({
-    required this.area,
-    required this.name,
-    required this.function,
-    required this.example,
-  });
-
-  final Rect area;
-  final String name;
-  final String function;
-  final String example;
-}
-
-const _demoControls = [
-  _DemoControl(
-    area: Rect.fromLTWH(0.1, 0.2, 0.28, 0.22),
-    name: 'Botón de inicio',
-    function: 'En este ejemplo, representa el control que comienza una acción.',
-    example: 'Podría iniciar un ciclo o encender el aparato.',
-  ),
-  _DemoControl(
-    area: Rect.fromLTWH(0.62, 0.28, 0.26, 0.2),
-    name: 'Selector',
-    function: 'En este ejemplo, representa un control para elegir una opción.',
-    example: 'Podría cambiar el programa o el nivel de uso.',
-  ),
-];
-
-class _DemoExplanation extends StatelessWidget {
-  const _DemoExplanation({required this.control, required this.onChange});
-
-  final _DemoControl control;
-  final VoidCallback onChange;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _mint,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFAAD8C7)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline_rounded, color: _teal, size: 24),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(control.name, style: textTheme.titleMedium),
-                const SizedBox(height: 5),
-                Text(control.function, style: textTheme.bodyMedium),
-                const SizedBox(height: 5),
-                Text(
-                  'Ejemplo: ${control.example}',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: _ink,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton.icon(
-                  onPressed: onChange,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Cambiar zona'),
-                ),
-              ],
-            ),
           ),
         ],
       ),

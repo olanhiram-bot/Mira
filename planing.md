@@ -76,9 +76,14 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 - Permitir corregir una detección.
 
 **Estado actual:** OCR y selección manual disponibles; el diario de aprendizaje
-local recolecta confirmaciones y correcciones como datos etiquetados. La
-identificación visual abierta queda bloqueada hasta entrenar un modelo de
-dominio sobre ese corpus.
+local recolecta confirmaciones y correcciones como datos etiquetados. El
+pipeline de entrenamiento está verificado: `tool/fetch_seed_dataset.py`
+descarga imágenes públicas semilla, `tool/export_dataset.dart` convierte el
+diario a dataset train/val, `tool/train/train_model.py` entrena con transfer
+learning MobileNetV2 y exporta TFLite + labels + métricas. La precisión con
+la semilla de demostración es 58.3% (48 imágenes); para integrar en la app
+se necesita un corpus real (≥50 ejemplos por clase) que alcance ≥75% en
+validación y se valide en el Moto G06.
 
 ### Fase 4 — Accesibilidad
 
@@ -126,6 +131,7 @@ rtk flutter test
 
 ## Siguiente tarea
 
-Exportar el diario de aprendizaje local (`mira_learning.jsonl`) a un dataset de
-entrenamiento y probar el flujo completo en Android físico, especialmente el OCR,
-las confirmaciones/correcciones y su respaldo manual.
+Acumular datos reales en el diario (≥50 ejemplos por clase en el Moto G06),
+re-entrenar el modelo de dominio, validar ≥75% de precisión y, solo si se
+alcanza, integrar el modelo TFLite en `ml_kit_image_recognition_service_io.dart`
+reemplazando o complementando el modelo ImageNet actual.

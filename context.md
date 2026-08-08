@@ -65,11 +65,10 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 
 ## Próximo paso
 
-El diario de aprendizaje local ya recolecta ejemplos etiquetados por el uso.
-El siguiente paso es construir la exportación del diario a dataset de
-entrenamiento y, con ese corpus, seleccionar/entrenar un modelo local compacto
-para electrodomésticos y validar su rendimiento en el Moto G06 antes de
-integrarlo en la app.
+Entrenar el modelo con un corpus real (no de demostración) a partir del diario de
+aprendizaje: al menos 50 ejemplos por clase con buenas fotos en el Moto G06.
+Si la precisión supera 75% en validación, integrar el modelo TFLite en la app
+para sustituir o complementar el MobileNet ImageNet actual.
 
 ## Riesgos conocidos
 

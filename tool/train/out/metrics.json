@@ -1,0 +1,35 @@
+{
+  "classes": [
+    "lavadora",
+    "microondas",
+    "refrigerador",
+    "tostadora"
+  ],
+  "overall_accuracy": 0.5833,
+  "per_class_accuracy": {
+    "lavadora": {
+      "correct": 1,
+      "total": 3,
+      "accuracy": 0.3333
+    },
+    "microondas": {
+      "correct": 2,
+      "total": 3,
+      "accuracy": 0.6667
+    },
+    "refrigerador": {
+      "correct": 1,
+      "total": 3,
+      "accuracy": 0.3333
+    },
+    "tostadora": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 1.0
+    }
+  },
+  "epochs": 16,
+  "img_size": 160,
+  "tflite_bytes": 2532544,
+  "tflite_path": "tool/train/out/model.tflite"
+}

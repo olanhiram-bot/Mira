@@ -6,11 +6,16 @@ class RecognitionResultPanel extends StatefulWidget {
   const RecognitionResultPanel({
     required this.future,
     required this.onConfirmed,
+    this.onCorrected,
     super.key,
   });
 
   final Future<ImageRecognitionResult> future;
   final ValueChanged<RecognizedThing> onConfirmed;
+
+  /// Se invoca cuando la persona confirma una opción distinta a la primera
+  /// sugerida: esa corrección es el ejemplo más valioso para el aprendizaje.
+  final ValueChanged<RecognizedThing>? onCorrected;
 
   @override
   State<RecognitionResultPanel> createState() => _RecognitionResultPanelState();
@@ -127,6 +132,10 @@ class _RecognitionResultPanelState extends State<RecognitionResultPanel> {
                   onPressed: () {
                     setState(() => _confirmed = true);
                     widget.onConfirmed(selected);
+                    if (widget.onCorrected != null &&
+                        selected != result.things.first) {
+                      widget.onCorrected!(selected);
+                    }
                   },
                   icon: const Icon(Icons.check_rounded),
                   label: const Text('Sí, es correcto'),

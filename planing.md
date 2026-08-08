@@ -23,6 +23,11 @@ Caso principal del MVP: fotografiar una lavadora, seleccionar un control y enten
 - La pantalla de cámara contempla pausa y reanudación del ciclo de vida de la app.
 - El OCR local ya lee etiquetas en Android después de la captura.
 - En Web, sin texto o ante un error, la selección manual sigue disponible.
+- Las confirmaciones y correcciones se registran en un diario de aprendizaje
+  local (`mira_learning.jsonl`, privado de la app) como ejemplos etiquetados:
+  foto, etiqueta, confianza y si fue corrección. Este corpus es la fuente de
+  datos para el entrenamiento del modelo de dominio en Fase 3; el modelo no se
+  entrena dentro del teléfono.
 - No existe backend, modelo visual generativo, clasificación visual abierta,
   detector de controles, autenticación ni realidad aumentada. La solución
   prevista es autónoma y debe usar un modelo local empaquetado.
@@ -70,8 +75,10 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 - Mostrar nivel de confianza.
 - Permitir corregir una detección.
 
-**Estado actual:** OCR y selección manual disponibles; la identificación visual
-abierta queda bloqueada hasta validar un modelo adecuado.
+**Estado actual:** OCR y selección manual disponibles; el diario de aprendizaje
+local recolecta confirmaciones y correcciones como datos etiquetados. La
+identificación visual abierta queda bloqueada hasta entrenar un modelo de
+dominio sobre ese corpus.
 
 ### Fase 4 — Accesibilidad
 
@@ -119,4 +126,6 @@ rtk flutter test
 
 ## Siguiente tarea
 
-Probar el flujo completo en Android físico, especialmente el OCR y su respaldo manual.
+Exportar el diario de aprendizaje local (`mira_learning.jsonl`) a un dataset de
+entrenamiento y probar el flujo completo en Android físico, especialmente el OCR,
+las confirmaciones/correcciones y su respaldo manual.

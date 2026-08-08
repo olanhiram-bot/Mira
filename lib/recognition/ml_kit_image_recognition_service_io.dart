@@ -9,7 +9,7 @@ import 'image_recognition.dart';
 ImageRecognitionService createMlKitImageRecognitionService() {
   return LocalImageRecognitionService(
     supported: defaultTargetPlatform == TargetPlatform.android,
-    confidenceThreshold: 0.15,
+    confidenceThreshold: 0.55,
     processor: _processImage,
   );
 }

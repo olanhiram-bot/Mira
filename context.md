@@ -28,6 +28,12 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 - El OCR local lee etiquetas en Android después de capturar una imagen y muestra
   los textos como ayuda orientativa, sin convertirlos automáticamente en instrucciones.
 - En Web y cuando el OCR falla se conserva la selección manual como respaldo.
+- Las confirmaciones y correcciones del panel de reconocimiento se guardan en
+  un diario de aprendizaje local (JSONL privado de la app, `mira_learning.jsonl`)
+  con foto, etiqueta confirmada, confianza y si fue corrección. La foto se copia
+  al almacenamiento durable de la app (`<documentos>/images/`) para que el
+  dataset sobreviva a la limpieza de la carpeta temporal de la cámara. Nada sale
+  del dispositivo y alimenta los futuros ciclos de entrenamiento del modelo de dominio.
 - No hay backend ni reconocimiento visual generativo; la identificación abierta
   todavía no está implementada. La decisión vigente es mantener el reconocimiento
   autónomo en el dispositivo mediante un modelo local empaquetado.
@@ -59,8 +65,11 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 
 ## Próximo paso
 
-Seleccionar/entrenar un modelo local compacto para electrodomésticos y validar su
-rendimiento en el Moto G06 antes de integrarlo en la app.
+El diario de aprendizaje local ya recolecta ejemplos etiquetados por el uso.
+El siguiente paso es construir la exportación del diario a dataset de
+entrenamiento y, con ese corpus, seleccionar/entrenar un modelo local compacto
+para electrodomésticos y validar su rendimiento en el Moto G06 antes de
+integrarlo en la app.
 
 ## Riesgos conocidos
 

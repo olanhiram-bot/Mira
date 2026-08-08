@@ -6,6 +6,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'recognition/image_recognition.dart';
+import 'recognition/learning_journal.dart';
 import 'recognition/ml_kit_image_recognition_service.dart';
 import 'recognition/recognition_panel.dart';
 
@@ -789,6 +790,7 @@ class _CapturedImageViewState extends State<CapturedImageView> {
   late final Future<Uint8List> _imageBytes;
   late final Future<_OcrResult> _ocrResult;
   late final Future<ImageRecognitionResult> _recognitionResult;
+  late final Future<LearningJournal> _journal;
 
   @override
   void initState() {
@@ -798,6 +800,31 @@ class _CapturedImageViewState extends State<CapturedImageView> {
     _recognitionResult = createMlKitImageRecognitionService().recognize(
       imagePath: widget.image.path,
     );
+    _journal = openLearningJournal();
+  }
+
+  /// Guarda la confirmación o corrección como ejemplo etiquetado local.
+  ///
+  /// El diario alimenta futuros ciclos de entrenamiento del modelo de dominio.
+  /// Nunca debe romper la revisión de la foto: los fallos se ignoran.
+  Future<void> _recordSelection(
+    RecognizedThing thing, {
+    required bool corrected,
+  }) async {
+    try {
+      final journal = await _journal;
+      await journal.record(
+        LearningExample(
+          imagePath: widget.image.path,
+          label: thing.label,
+          confidence: thing.confidence,
+          corrected: corrected,
+          timestamp: DateTime.now().toIso8601String(),
+        ),
+      );
+    } catch (_) {
+      // Aprender del uso es opcional; la revisión sigue funcionando.
+    }
   }
 
   Future<_OcrResult> _recognizeText() async {
@@ -859,11 +886,17 @@ class _CapturedImageViewState extends State<CapturedImageView> {
               _OcrResultPanel(future: _ocrResult),
               RecognitionResultPanel(
                 future: _recognitionResult,
-                onConfirmed: (_) {},
+                onConfirmed: (thing) =>
+                    _recordSelection(thing, corrected: false),
+                onCorrected: (thing) =>
+                    _recordSelection(thing, corrected: true),
               ),
               const SizedBox(height: 14),
               Text(
-                'La identificación se realiza en este dispositivo. Confirma el resultado porque la IA puede equivocarse.',
+                'La identificación se realiza en este dispositivo. '
+                'Confirma el resultado porque la IA puede equivocarse. '
+                'Tus confirmaciones y correcciones se guardan solo en este '
+                'dispositivo para mejorar el reconocimiento.',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),

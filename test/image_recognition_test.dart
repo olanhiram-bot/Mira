@@ -76,6 +76,67 @@ void main() {
     expect(confirmed?.label, 'Lavadora');
   });
 
+  testWidgets(
+    'confirmar la primera sugerencia no se registra como corrección',
+    (tester) async {
+      RecognizedThing? confirmed;
+      RecognizedThing? corrected;
+      final result = ImageRecognitionResult.fromCandidates([
+        const RecognitionCandidate(label: 'Washing machine', confidence: 0.91),
+        const RecognitionCandidate(label: 'Refrigerator', confidence: 0.72),
+      ]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RecognitionResultPanel(
+              future: Future.value(result),
+              onConfirmed: (thing) => confirmed = thing,
+              onCorrected: (thing) => corrected = thing,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Sí, es correcto'));
+      expect(confirmed?.label, 'Lavadora');
+      expect(corrected, isNull);
+    },
+  );
+
+  testWidgets(
+    'elegir otra opción antes de confirmar se registra como corrección',
+    (tester) async {
+      RecognizedThing? confirmed;
+      RecognizedThing? corrected;
+      final result = ImageRecognitionResult.fromCandidates([
+        const RecognitionCandidate(label: 'Washing machine', confidence: 0.91),
+        const RecognitionCandidate(label: 'Refrigerator', confidence: 0.72),
+      ]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RecognitionResultPanel(
+              future: Future.value(result),
+              onConfirmed: (thing) => confirmed = thing,
+              onCorrected: (thing) => corrected = thing,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Refrigerador'));
+      await tester.pump();
+      await tester.tap(find.text('Sí, es correcto'));
+
+      expect(confirmed?.label, 'Refrigerador');
+      expect(corrected?.label, 'Refrigerador');
+    },
+  );
+
   test(
     'el servicio convierte la salida local de IA al modelo de la app',
     () async {
@@ -92,13 +153,24 @@ void main() {
     },
   );
 
+  test('el modelo especializado rechaza una predicción moderada', () async {
+    final service = LocalImageRecognitionService(
+      processor: (_) async => const [
+        RecognitionCandidate(label: 'flagpole', confidence: 0.45),
+      ],
+    );
+
+    final result = await service.recognize(imagePath: '/tmp/city.jpg');
+
+    expect(result.status, RecognitionStatus.uncertain);
+  });
+
   test(
-    'el modelo especializado conserva una predicción útil moderada',
+    'el modelo especializado identifica un mouse con confianza alta',
     () async {
       final service = LocalImageRecognitionService(
-        confidenceThreshold: 0.15,
         processor: (_) async => const [
-          RecognitionCandidate(label: 'mouse', confidence: 0.42),
+          RecognitionCandidate(label: 'mouse', confidence: 0.72),
         ],
       );
 

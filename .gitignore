@@ -50,4 +50,10 @@ app.*.map.json
 
 # Entrenamiento local de Mira (no subir el entorno ni pesos intermedios)
 /tool/train/.venv/
+/tool/train/.metaenv/
 /tool/train/out/best.h5
+
+# Dataset semilla: miles de imágenes mantenidas en el disco local; el repo
+# solo conserva la atribución (attribution.csv) y el script que las regenera.
+/tool/dataset/train/
+/tool/dataset/val/

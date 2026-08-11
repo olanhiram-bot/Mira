@@ -34,6 +34,25 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
   al almacenamiento durable de la app (`<documentos>/images/`) para que el
   dataset sobreviva a la limpieza de la carpeta temporal de la cámara. Nada sale
   del dispositivo y alimenta los futuros ciclos de entrenamiento del modelo de dominio.
+- La lectura por voz lee en voz alta la identificación mostrada en Android
+  (flutter_tts, español, velocidad lenta) con un botón en el panel de
+  reconocimiento; el botón se oculta donde no hay motor de voz y los fallos
+  del motor nunca rompen el flujo (Web degrada sin voz).
+- La home incluye un interruptor de texto grande (escala 1.3×) que se aplica a
+  toda la app, persiste en preferencias locales y se carga al iniciar.
+- La paleta base (marfil, tinta azul verdosa, acento coral) cumple WCAG AA en
+  todos los pares de texto y componentes usados: verificación por ratio real
+  (mínimo 5.25:1, texto y UI) sobre los colores de `lib/main.dart`.
+- El README de portafolio documenta el producto, la arquitectura y las
+  decisiones técnicas (Fase 5, pendiente video y demo/APK).
+- El pipeline de entrenamiento se re-ejecutó completo con la semilla real de
+  Wikimedia: 2521 imágenes válidas (train 1827 / val 694; lavadora 1015,
+  refrigerador 1009, microondas 318, tostadora 180) tras saneado PIL. Resultado:
+  73.92% global en validación (lavadora 75.3%, refrigerador 81.0%, microondas
+  58.5%, tostadora 48.9%). El gate de integración (≥75% en CADA clase) NO se
+  alcanzó: el desbalance de clases y el ruido de las categorías pequeñas de
+  Commons (tostadoras históricas/museo) hunden microondas y tostadora. El modelo
+  de dominio NO se integró; la app sigue con MobileNet ImageNet.
 - No hay backend ni reconocimiento visual generativo; la identificación abierta
   todavía no está implementada. La decisión vigente es mantener el reconocimiento
   autónomo en el dispositivo mediante un modelo local empaquetado.

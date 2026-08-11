@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'image_recognition.dart';
+import '../speech/tts_service.dart';
 
 class RecognitionResultPanel extends StatefulWidget {
   const RecognitionResultPanel({
     required this.future,
     required this.onConfirmed,
     this.onCorrected,
+    this.tts,
     super.key,
   });
 
@@ -17,6 +19,9 @@ class RecognitionResultPanel extends StatefulWidget {
   /// sugerida: esa corrección es el ejemplo más valioso para el aprendizaje.
   final ValueChanged<RecognizedThing>? onCorrected;
 
+  /// Servicio de lectura por voz; se crea uno real si no se inyecta.
+  final TtsService? tts;
+
   @override
   State<RecognitionResultPanel> createState() => _RecognitionResultPanelState();
 }
@@ -24,6 +29,31 @@ class RecognitionResultPanel extends StatefulWidget {
 class _RecognitionResultPanelState extends State<RecognitionResultPanel> {
   RecognizedThing? _selected;
   bool _confirmed = false;
+  bool _isSpeaking = false;
+  late final TtsService _tts = widget.tts ?? createTtsService();
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  String _spokenExplanation(RecognizedThing thing) {
+    final percent = (thing.confidence * 100).round();
+    return 'Parece ser ${thing.label}. '
+        '$percent por ciento de confianza. '
+        'La IA puede equivocarse. Confirma antes de usar esta identificación.';
+  }
+
+  Future<void> _toggleSpeak(RecognizedThing thing) async {
+    if (_isSpeaking) {
+      await _tts.stop();
+      if (mounted) setState(() => _isSpeaking = false);
+      return;
+    }
+    await _tts.speak(_spokenExplanation(thing));
+    if (mounted) setState(() => _isSpeaking = true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +123,19 @@ class _RecognitionResultPanelState extends State<RecognitionResultPanel> {
                       ],
                     ),
                   ),
+                  if (_tts.isSupported)
+                    IconButton(
+                      key: const ValueKey('listen-explanation'),
+                      tooltip: _isSpeaking
+                          ? 'Detener la lectura'
+                          : 'Escuchar la explicación',
+                      onPressed: () => _toggleSpeak(selected),
+                      icon: Icon(
+                        _isSpeaking
+                            ? Icons.stop_circle_outlined
+                            : Icons.volume_up_rounded,
+                      ),
+                    ),
                 ],
               ),
               if (result.things.length > 1) ...[

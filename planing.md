@@ -77,24 +77,30 @@ La primera explicación puede ser local y basada en datos de demostración. La d
 
 **Estado actual:** OCR y selección manual disponibles; el diario de aprendizaje
 local recolecta confirmaciones y correcciones como datos etiquetados. El
-pipeline de entrenamiento está verificado: `tool/fetch_seed_dataset.py`
-descarga imágenes públicas semilla, `tool/export_dataset.dart` convierte el
-diario a dataset train/val, `tool/train/train_model.py` entrena con transfer
-learning MobileNetV2 y exporta TFLite + labels + métricas. La precisión con
-la semilla de demostración es 58.3% (48 imágenes); para integrar en la app
-se necesita un corpus real (≥50 ejemplos por clase) que alcance ≥75% en
-validación y se valide en el Moto G06.
+pipeline de entrenamiento está verificado y re-ejecutado con la semilla
+completa: `tool/fetch_seed_dataset.py` descarga imágenes públicas semilla,
+`tool/sanitize_dataset.py` elimina corruptas, `tool/train/train_model.py`
+entrena con transfer learning MobileNetV2 (fase 1 + fine-tune) y exporta
+TFLite + labels + métricas, y `tool/train/annotate_tflite.py` añade la
+metadata (normalización [0,1] + etiquetas). La semilla final son 2521 imágenes
+válidas (lavadora 1015, refrigerador 1009, microondas 318, tostadora 180):
+precisión global 73.92% con lavadora 75.3% y refrigerador 81.0%, pero
+microondas 58.5% y tostadora 48.9% — el gate de ≥75% en CADA clase no se
+alcanza. Para integrar en la app se necesita un corpus real (≥50 ejemplos por
+clase) que alcance ≥75% en validación y se valide en el Moto G06.
 
 ### Fase 4 — Accesibilidad
 
-- Lectura por voz.
-- Texto grande y alto contraste.
+- Lectura por voz: botón para escuchar la identificación (Android; oculto en Web).
+- Texto grande: interruptor persistente de escala 1.3× aplicado a toda la app.
+- Contraste: paleta base verificada contra WCAG AA (ratio mínimo real 5.25:1);
+  pendiente revisar la navegación para baja visión.
 - Navegación clara para personas con baja visión.
 - Soporte inicial español/inglés.
 
 ### Fase 5 — Portafolio
 
-- README con arquitectura y decisiones.
+- README con arquitectura y decisiones: hecho (`README.md`).
 - Video corto de uso.
 - Dataset de demostración sin datos privados.
 - Pruebas de los estados principales.

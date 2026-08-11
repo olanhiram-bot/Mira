@@ -5,30 +5,31 @@
     "refrigerador",
     "tostadora"
   ],
-  "overall_accuracy": 0.5833,
+  "overall_accuracy": 0.7392,
   "per_class_accuracy": {
     "lavadora": {
-      "correct": 1,
-      "total": 3,
-      "accuracy": 0.3333
+      "correct": 213,
+      "total": 283,
+      "accuracy": 0.7527
     },
     "microondas": {
-      "correct": 2,
-      "total": 3,
-      "accuracy": 0.6667
+      "correct": 48,
+      "total": 82,
+      "accuracy": 0.5854
     },
     "refrigerador": {
-      "correct": 1,
-      "total": 3,
-      "accuracy": 0.3333
+      "correct": 230,
+      "total": 284,
+      "accuracy": 0.8099
     },
     "tostadora": {
-      "correct": 3,
-      "total": 3,
-      "accuracy": 1.0
+      "correct": 22,
+      "total": 45,
+      "accuracy": 0.4889
     }
   },
-  "epochs": 16,
+  "epochs": 24,
+  "finetune": true,
   "img_size": 160,
   "tflite_bytes": 2532544,
   "tflite_path": "tool/train/out/model.tflite"

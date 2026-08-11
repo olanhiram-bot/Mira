@@ -5,6 +5,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'accessibility/text_scale.dart';
 import 'recognition/image_recognition.dart';
 import 'recognition/learning_journal.dart';
 import 'recognition/ml_kit_image_recognition_service.dart';
@@ -22,8 +23,27 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final ValueNotifier<double> _textScale = ValueNotifier<double>(1.0);
+
+  @override
+  void initState() {
+    super.initState();
+    TextScaleScope.loadInto(_textScale);
+  }
+
+  @override
+  void dispose() {
+    _textScale.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,55 +59,74 @@ class MyApp extends StatelessWidget {
           surfaceContainerHighest: _sand,
         );
 
-    return MaterialApp(
-      title: 'Mira',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: colorScheme,
-        scaffoldBackgroundColor: _cream,
-        textTheme: const TextTheme(
-          displaySmall: TextStyle(
-            color: _ink,
-            fontSize: 38,
-            fontWeight: FontWeight.w700,
-            height: 1.08,
-            letterSpacing: -1.2,
-          ),
-          headlineSmall: TextStyle(
-            color: _ink,
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            height: 1.2,
-          ),
-          titleMedium: TextStyle(
-            color: _ink,
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-          ),
-          bodyLarge: TextStyle(
-            color: Color(0xFF476064),
-            fontSize: 17,
-            height: 1.45,
-          ),
-          bodyMedium: TextStyle(
-            color: Color(0xFF476064),
-            fontSize: 15,
-            height: 1.4,
-          ),
-          labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(0, 56),
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
+    return TextScaleScope(
+      notifier: _textScale,
+      child: ValueListenableBuilder<double>(
+        valueListenable: _textScale,
+        builder: (context, scale, child) {
+          return MaterialApp(
+            title: 'Mira',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: colorScheme,
+              scaffoldBackgroundColor: _cream,
+              textTheme: const TextTheme(
+                displaySmall: TextStyle(
+                  color: _ink,
+                  fontSize: 38,
+                  fontWeight: FontWeight.w700,
+                  height: 1.08,
+                  letterSpacing: -1.2,
+                ),
+                headlineSmall: TextStyle(
+                  color: _ink,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
+                titleMedium: TextStyle(
+                  color: _ink,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+                bodyLarge: TextStyle(
+                  color: Color(0xFF476064),
+                  fontSize: 17,
+                  height: 1.45,
+                ),
+                bodyMedium: TextStyle(
+                  color: Color(0xFF476064),
+                  fontSize: 15,
+                  height: 1.4,
+                ),
+                labelLarge: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 56),
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+            // Aplica el escalado de texto elegido a toda la app. Este
+            // MediaQuery es el más interno, así que es el que ven las rutas.
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(scale)),
+              child: child!,
+            ),
+            home: const MiraEntryPage(),
+          );
+        },
       ),
-      home: const MiraEntryPage(),
     );
   }
 }
@@ -1130,6 +1169,12 @@ class MiraHomePage extends StatelessWidget {
                             const SizedBox(width: 12),
                             Text('Mira', style: textTheme.titleLarge),
                             const Spacer(),
+                            IconButton(
+                              key: const ValueKey('text-scale-toggle'),
+                              tooltip: 'Texto grande',
+                              onPressed: () => TextScaleScope.toggle(context),
+                              icon: const Icon(Icons.text_fields_rounded),
+                            ),
                             if (compact)
                               Semantics(
                                 label: 'Tus fotos permanecen en tu dispositivo',

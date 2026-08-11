@@ -107,6 +107,10 @@ const _nonIdentifyingLabels = <String>{
 };
 
 const _spanishLabels = <String, String>{
+  'lavadora': 'Lavadora',
+  'microondas': 'Microondas',
+  'refrigerador': 'Refrigerador',
+  'tostadora': 'Tostadora',
   'mouse': 'Mouse de computadora',
   'computer mouse': 'Mouse de computadora',
   'washing machine': 'Lavadora',

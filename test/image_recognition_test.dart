@@ -23,6 +23,34 @@ void main() {
     expect(result.things.last.label, 'Electrodoméstico');
   });
 
+  test('mapea las etiquetas del modelo de dominio a nombres visibles', () {
+    const pairs = <String, String>{
+      'lavadora': 'Lavadora',
+      'microondas': 'Microondas',
+      'refrigerador': 'Refrigerador',
+      'tostadora': 'Tostadora',
+    };
+    for (final entry in pairs.entries) {
+      final result = ImageRecognitionResult.fromCandidates([
+        RecognitionCandidate(label: entry.key, confidence: 0.9),
+      ]);
+      expect(result.things.single.label, entry.value, reason: entry.key);
+    }
+  });
+
+  test('una predicción de dominio con confianza baja queda incierta', () async {
+    final service = LocalImageRecognitionService(
+      processor: (_) async => const [
+        RecognitionCandidate(label: 'tostadora', confidence: 0.48),
+      ],
+    );
+
+    final result = await service.recognize(imagePath: '/tmp/photo.jpg');
+
+    expect(result.status, RecognitionStatus.uncertain);
+    expect(result.things, isEmpty);
+  });
+
   test('limita y traduce las mejores predicciones de objetos comunes', () {
     final result = ImageRecognitionResult.fromCandidates([
       const RecognitionCandidate(label: 'Refrigerator', confidence: 0.96),

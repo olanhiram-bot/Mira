@@ -51,8 +51,16 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
   73.92% global en validación (lavadora 75.3%, refrigerador 81.0%, microondas
   58.5%, tostadora 48.9%). El gate de integración (≥75% en CADA clase) NO se
   alcanzó: el desbalance de clases y el ruido de las categorías pequeñas de
-  Commons (tostadoras históricas/museo) hunden microondas y tostadora. El modelo
-  de dominio NO se integró; la app sigue con MobileNet ImageNet.
+  Commons (tostadoras históricas/museo) hunden microondas y tostadora.
+- Por decisión explícita del usuario, el modelo de dominio SÍ se integró en la
+  app (`assets/models/mira_appliances.tflite`, anotado con metadata de
+  normalización [0,1] y etiquetas) sustituyendo al MobileNet ImageNet, con el
+  diseño fail-closed existente: confianza visible, umbral de presentación
+  (0.55), confirmación/corrección y respaldo manual cuando la predicción es
+  incierta. Distingue 4 clases (lavadora, refrigerador, microondas, tostadora)
+  a 160×160; las métricas por clase siguen por debajo del gate y la app no
+  presenta predicciones inciertas como identificaciones seguras. Verificado:
+  formato, análisis, 30 tests, build web y APK debug (modelo dentro del APK).
 - No hay backend ni reconocimiento visual generativo; la identificación abierta
   todavía no está implementada. La decisión vigente es mantener el reconocimiento
   autónomo en el dispositivo mediante un modelo local empaquetado.
@@ -84,10 +92,10 @@ La utilidad está en hacer comprensibles aparatos desconocidos para personas may
 
 ## Próximo paso
 
-Entrenar el modelo con un corpus real (no de demostración) a partir del diario de
-aprendizaje: al menos 50 ejemplos por clase con buenas fotos en el Moto G06.
-Si la precisión supera 75% en validación, integrar el modelo TFLite en la app
-para sustituir o complementar el MobileNet ImageNet actual.
+Acumular ejemplos reales etiquetados en el diario de aprendizaje (≥50 por
+clase, buenas fotos en el Moto G06), re-entrenar el modelo de dominio y validar
+≥75% en CADA clase para re-evaluar el gate. El modelo actual ya está integrado,
+pero microondas (58.5%) y tostadora (48.9%) quedan por debajo del umbral.
 
 ## Riesgos conocidos
 

@@ -39,18 +39,17 @@ Future<List<RecognitionCandidate>> _processImage(String imagePath) async {
   }
 }
 
-const _modelAsset = 'assets/models/mobilenet_v1_imagenet.tflite';
-const _modelLength = 4287874;
+const _domainModelAsset = 'assets/models/mira_appliances.tflite';
+const _domainModelLength = 2533448;
 
 Future<String> _ensureModelPath() async {
-  final modelFile = File(
-    '${Directory.systemTemp.path}/mira_mobilenet_v1_imagenet.tflite',
-  );
-  if (await modelFile.exists() && await modelFile.length() == _modelLength) {
+  final modelFile = File('${Directory.systemTemp.path}/mira_appliances.tflite');
+  if (await modelFile.exists() &&
+      await modelFile.length() == _domainModelLength) {
     return modelFile.path;
   }
 
-  final data = await rootBundle.load(_modelAsset);
+  final data = await rootBundle.load(_domainModelAsset);
   await modelFile.writeAsBytes(
     data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
     flush: true,

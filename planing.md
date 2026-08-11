@@ -86,8 +86,13 @@ metadata (normalización [0,1] + etiquetas). La semilla final son 2521 imágenes
 válidas (lavadora 1015, refrigerador 1009, microondas 318, tostadora 180):
 precisión global 73.92% con lavadora 75.3% y refrigerador 81.0%, pero
 microondas 58.5% y tostadora 48.9% — el gate de ≥75% en CADA clase no se
-alcanza. Para integrar en la app se necesita un corpus real (≥50 ejemplos por
-clase) que alcance ≥75% en validación y se valide en el Moto G06.
+alcanza. Por decisión explícita del usuario, el modelo se integró igualmente:
+`assets/models/mira_appliances.tflite` (anotado con metadata de normalización
+[0,1] y etiquetas) reemplaza al MobileNet ImageNet en
+`ml_kit_image_recognition_service_io.dart`, manteniendo el flujo fail-closed
+(confianza visible, umbral 0.55, confirmación/corrección y respaldo manual).
+Sigue pendiente el corpus real (≥50 ejemplos por clase) que alcance ≥75% en
+validación y la validación en el Moto G06.
 
 ### Fase 4 — Accesibilidad
 
@@ -138,6 +143,7 @@ rtk flutter test
 ## Siguiente tarea
 
 Acumular datos reales en el diario (≥50 ejemplos por clase en el Moto G06),
-re-entrenar el modelo de dominio, validar ≥75% de precisión y, solo si se
-alcanza, integrar el modelo TFLite en `ml_kit_image_recognition_service_io.dart`
-reemplazando o complementando el modelo ImageNet actual.
+re-entrenar el modelo de dominio y validar ≥75% en CADA clase. El modelo actual
+ya está integrado en `ml_kit_image_recognition_service_io.dart` (por decisión
+explícita del usuario), pero microondas 58.5% y tostadora 48.9% quedan por
+debajo del gate y deben re-evaluarse con el corpus real.

@@ -64,7 +64,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/models/mobilenet_v1_imagenet.tflite
+    - assets/models/mira_appliances.tflite
 
   # To add assets to your application, add an assets section, like this:
   # assets:
